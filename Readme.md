@@ -1,2 +1,3 @@
-Rss feed that displays news from habr. Currently under development. 
-In the future, it is planned to add the ability to change rss feeds, add new ones and disable unnecessary ones, and also implement the ability to change page updates.
+#RSS Feed
+Rss-канал, отображающий новости с хабра. В настоящее время находится в стадии разработки. 
+В будущем планируется добавить возможность изменять rss-каналы, добавлять новые и отключать ненужные, а также реализовать возможность изменять обновления страниц.
