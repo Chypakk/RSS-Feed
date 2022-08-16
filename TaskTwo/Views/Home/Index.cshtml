@@ -1,0 +1,16 @@
+﻿@model List<FeedItem>
+
+@{
+    ViewData["Title"] = "Home Page";
+}
+
+<div class="text-center">
+    <h1 class="display-4">Welcome</h1>
+
+    @foreach (var item in Model)
+    {
+        <a href="@item.Link" style="text-decoration: none; color: #000" target="_blank"><h3>@item.Title</h3></a>
+        <p>@item.Description <a href="@item.Link" style="color: #000" target="_blank">Читать далее</a></p>
+    }
+
+</div>
