@@ -5,12 +5,41 @@
 }
 
 <div class="text-center">
-    <h1 class="display-4">Welcome</h1>
+    <div class="row">
+        <div class="col-10">
+            <h1 class="display-4">Welcome</h1>
 
-    @foreach (var item in Model)
-    {
-        <a href="@item.Link" style="text-decoration: none; color: #000" target="_blank"><h3>@item.Title</h3></a>
-        <p>@item.Description <a href="@item.Link" style="color: #000" target="_blank">Читать далее</a></p>
-    }
+            @foreach (var item in Model.OrderBy(a => a.ChannelTitle))
+            {
+
+                <div class="card mt-2 border-secondary">
+                    <div class="card-body">
+                        
+                        <div class="card-title border-bottom myLink"><a class="myLink" href="@item.Link" target="_blank"><h5>@item.Title</h5></a></div>
+                        <p class="card-text text-muted" style="text-align: left">Дата публикации: @item.pubDate</p>
+                        <p class="card-text" style="text-align: left">@item.Description <a href="@item.Link" style="color: #000" target="_blank">Читать далее</a></p>
+                        
+                    </div>
+                </div>
+
+                
+                
+            }
+        </div>
+        <div class="col-2">
+            <p>Текущее время обновления @ViewBag.RefreshTime с.</p>
+            <form asp-action="SetTimeRefresh">
+                <label>Время обновления</label>
+                <input class="form-control" name="refTime" />
+                <button type="submit" class="btn btn-secondary my-2">Изменить</button>
+            </form>
+            <form asp-action="AddNewLink" class="my-2">
+                <label>Новая ссылка</label>
+                <input class="form-control" name="link" />
+                <button type="submit" class="btn btn-secondary my-2">Добавить ссылку</button>
+            </form>
+        </div>
+    </div>
+    
 
 </div>

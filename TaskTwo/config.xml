@@ -1,8 +1,11 @@
-﻿<?xml version="1.0" encoding="utf-8" ?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <configuration>
   <RSS>
-    <link>https://habr.com/ru/rss/interesting/</link>
-    <link2>http://feeds.bbci.co.uk/russian/rss.xml</link2>
+    <links>
+      <link0>https://habr.com/ru/rss/interesting/</link0>
+      <link1>http://feeds.bbci.co.uk/russian/rss.xml</link1>
+      <link2>https://habr.com/ru/rss/all/all/</link2>
+    </links>
     <refreshTime>60</refreshTime>
     <ipAddress>89.191.131.243</ipAddress>
   </RSS>

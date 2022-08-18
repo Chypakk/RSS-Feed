@@ -16,3 +16,11 @@ html {
 body {
   margin-bottom: 60px;
 }
+
+.myLink{
+    color: #000;
+    text-decoration: none;
+}
+.myLink :hover{
+    transform: scale(1.1);
+}

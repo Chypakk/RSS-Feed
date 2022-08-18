@@ -23,25 +23,40 @@ namespace TaskTwo.Controllers
             var feed = new List<FeedItem>();
             ViewBag.RefreshTime = myConfig.refreshTime;
 
-            using (var client = new HttpClient())
+            var config = XDocument.Load("config.xml");
+            var links = config.Root.Element("RSS").Element("links");
+            var countLinks = links.Elements().Count();
+            
+            for (int i = 0; i < countLinks; i++)
             {
-                client.BaseAddress = new Uri(myConfig.link);
-                var responseMessage = await client.GetAsync(myConfig.link);
-                var responseString = await responseMessage.Content.ReadAsStringAsync();
+                using (var client = new HttpClient())
+                {
 
-                XDocument doc = XDocument.Parse(responseString);
-                Regex regex = new Regex(@"(<[\a-zA-Z]+>)+(&[a-z]+;)*(Читать дальше? &rarr;?)?(Читать далее?)?", RegexOptions.Compiled);
-                
-                var feedItems = from item in doc.Root.Descendants().First(a => a.Name.LocalName == "channel").Elements().Where(a => a.Name.LocalName == "item")
-                                select new FeedItem
-                                {
-                                    Description = regex.Replace(item.Elements().First(a => a.Name.LocalName == "description").Value, ""),
-                                    Link = item.Elements().First(a => a.Name.LocalName == "link").Value,
-                                    pubDate = ParseDate(item.Elements().First(a => a.Name.LocalName == "pubDate").Value),
-                                    Title = item.Elements().First(a => a.Name.LocalName == "title").Value
-                                };
-                feed = feedItems.ToList();
-            }
+                    var link = links.Element($"link{i}").Value;
+                    client.BaseAddress = new Uri(link);
+                    var responseMessage = await client.GetAsync(link);
+                    var responseString = await responseMessage.Content.ReadAsStringAsync();
+                    //<+(\w+\W+)+>+
+                    XDocument doc = XDocument.Parse(responseString);
+                    
+                    Regex regex = new Regex(@"(<[\a-zA-Z]+>)+(&[a-z]+;)*(Читать дальше? &rarr;?)?(Читать далее?)?", RegexOptions.Compiled);
+                    Regex regexSpace = new Regex(@"(&nbsp;)+", RegexOptions.Compiled);
+                    Regex regexTags = new Regex(@"<+(\w+\W+)+>+", RegexOptions.Compiled);
+
+                    var chTitle = doc.Descendants("title").First().Value;
+                    var feedItems = from item in doc.Root.Descendants().First(a => a.Name.LocalName == "channel").Elements().Where(a => a.Name.LocalName == "item")
+                                    select new FeedItem
+                                    {
+                                        Description = regexSpace.Replace(regexTags.Replace(regex.Replace(item.Elements().First(a => a.Name.LocalName == "description").Value, ""), ""), " "),
+                                        Link = item.Elements().First(a => a.Name.LocalName == "link").Value,
+                                        pubDate = ParseDate(item.Elements().First(a => a.Name.LocalName == "pubDate").Value),
+                                        Title = item.Elements().First(a => a.Name.LocalName == "title").Value,
+                                        ChannelTitle = chTitle
+                                    };
+                    feed.AddRange(feedItems.ToList());
+                }
+            }     
+
             return View(feed);
 
         }
@@ -53,6 +68,28 @@ namespace TaskTwo.Controllers
                 return result;
             else
                 return DateTime.MinValue;
+        }
+
+        public IActionResult AddNewLink(string link)
+        {
+            var config = XDocument.Load("config.xml");
+            int count = config.Root.Element("RSS").Element("links").Elements().Count();
+            var newLink = config.Descendants("links").First();
+            newLink.Add(new XElement($"link{count}", link));
+            config.Save("config.xml");
+            return RedirectToAction("Index");
+        }
+
+        public IActionResult SetTimeRefresh(int refTime)
+        {
+            XDocument config = XDocument.Load("config.xml");
+            var newTime = config.Descendants("refreshTime").First();
+            newTime.ReplaceWith(
+                new XElement("refreshTime", refTime)
+                );
+            myConfig.refreshTime = refTime.ToString();
+            config.Save("config.xml");
+            return RedirectToAction("Index");
         }
 
         public IActionResult Privacy()
