@@ -4,9 +4,16 @@
     <links>
       <link0>https://habr.com/ru/rss/interesting/</link0>
       <link1>http://feeds.bbci.co.uk/russian/rss.xml</link1>
-      <link2>https://habr.com/ru/rss/all/all/</link2>
+      <link2>https://habr.com/ru/rss/news/</link2>
     </links>
     <refreshTime>60</refreshTime>
     <ipAddress>89.191.131.243</ipAddress>
   </RSS>
 </configuration>
+<!--
+    <links>
+      <link0>https://habr.com/ru/rss/interesting/</link0>
+      <link1>http://feeds.bbci.co.uk/russian/rss.xml</link1>
+      <link2>https://habr.com/ru/rss/news/</link2>
+    </links>
+-->

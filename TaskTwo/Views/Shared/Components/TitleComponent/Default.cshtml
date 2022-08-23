@@ -1,0 +1,25 @@
+﻿@model List<string>
+
+
+
+<div class="card text-center" style="border: 0">
+    <div class="">
+
+      
+        <ul class="nav nav-pills card-header-pills">
+
+            @foreach (var item in Model)
+            {
+                <li class="nav-item">
+                    <a class="mx-2 btn titleChannel @(item == ViewBag.RssFeed ? "btn-primary" : "btn-white" )" asp-action="Index" asp-route-rss="@item">@item</a>
+                </li>
+            }
+            <li>
+                <a class="mx-2 btn titleChannel" asp-action="Index" asp-route-rss="">Показать всё</a>
+            </li>
+        </ul>
+    </div>
+</div>
+
+
+

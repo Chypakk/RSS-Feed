@@ -8,6 +8,8 @@ builder.Services.AddControllersWithViews();
 
 builder.Configuration.AddXmlFile("config.xml");
 
+
+
 builder.Services.Configure<MyConfig>(options => builder.Configuration.GetSection("RSS").Bind(options));
 
 //var config = new MyConfig();
@@ -22,7 +24,7 @@ builder.Services.Configure<MyConfig>(options => builder.Configuration.GetSection
 
 var app = builder.Build();
 
-app.UseForwardedHeaders();
+//app.UseForwardedHeaders();
 
 
 // Configure the HTTP request pipeline.

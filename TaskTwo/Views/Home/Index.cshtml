@@ -1,45 +1,63 @@
 ﻿@model List<FeedItem>
 
 @{
-    ViewData["Title"] = "Home Page";
+    ViewData["Title"] = "RSS лента";
 }
+
+
 
 <div class="text-center">
     <div class="row">
         <div class="col-10">
-            <h1 class="display-4">Welcome</h1>
 
-            @foreach (var item in Model.OrderBy(a => a.ChannelTitle))
+            @await Component.InvokeAsync("TitleComponent")
+
+            @if (ViewBag.RssFeed != null)
+            {
+                <h2 class="my-3">@ViewBag.RssFeed</h2>
+            }
+            else
+            {
+                <h2 class="my-3">Все новости</h2>
+            }
+
+            @foreach (var item in Model)
             {
 
-                <div class="card mt-2 border-secondary">
+                <div class="card shadow mt-2 rounded">
                     <div class="card-body">
-                        
-                        <div class="card-title border-bottom myLink"><a class="myLink" href="@item.Link" target="_blank"><h5>@item.Title</h5></a></div>
+
+                        <div class="card-title border-bottom titleLink"><a class="titleLink" href="@item.Link" target="_blank"><h5>@item.Title</h5></a></div>
                         <p class="card-text text-muted" style="text-align: left">Дата публикации: @item.pubDate</p>
                         <p class="card-text" style="text-align: left">@item.Description <a href="@item.Link" style="color: #000" target="_blank">Читать далее</a></p>
-                        
+
                     </div>
                 </div>
 
-                
-                
             }
+
         </div>
         <div class="col-2">
             <p>Текущее время обновления @ViewBag.RefreshTime с.</p>
+
             <form asp-action="SetTimeRefresh">
                 <label>Время обновления</label>
                 <input class="form-control" name="refTime" />
-                <button type="submit" class="btn btn-secondary my-2">Изменить</button>
+                <button type="submit" class="btn btn-success my-2">Изменить</button>
             </form>
+
             <form asp-action="AddNewLink" class="my-2">
                 <label>Новая ссылка</label>
                 <input class="form-control" name="link" />
-                <button type="submit" class="btn btn-secondary my-2">Добавить ссылку</button>
+                <button type="submit" class="btn btn-success my-2">Добавить ссылку</button>
             </form>
+
+            <form asp-action="DeleteLink" class="my-2">
+                <label>Введите название RSS ленты</label>
+                <input class="form-control" name="rssTitle" />
+                <button type="submit" class="btn btn-danger my-2">Удалить источник</button>
+            </form>
+
         </div>
     </div>
-    
-
 </div>

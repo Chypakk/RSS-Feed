@@ -1,26 +1,40 @@
 html {
-  font-size: 14px;
+    font-size: 14px;
 }
 
 @media (min-width: 768px) {
-  html {
-    font-size: 16px;
-  }
+    html {
+        font-size: 16px;
+    }
 }
 
 html {
-  position: relative;
-  min-height: 100%;
+    position: relative;
+    min-height: 100%;
 }
 
 body {
-  margin-bottom: 60px;
+    margin-bottom: 60px;
 }
 
-.myLink{
+.titleLink {
     color: #000;
     text-decoration: none;
 }
-.myLink :hover{
-    transform: scale(1.1);
+
+    .titleLink :hover {
+        transform: scale(1.1);
+    }
+
+.titleChannel:hover {
+    border: solid;
+    border-color: #637cde;
+}
+
+.titleChannel:hover .titleButton{
+    visibility:visible;
+}
+
+.titleButton {
+    visibility: hidden;
 }

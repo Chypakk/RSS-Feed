@@ -18,15 +18,19 @@ namespace TaskTwo.Controllers
             myConfig = settings.Value;
         }
 
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(string rss)
         {
             var feed = new List<FeedItem>();
             ViewBag.RefreshTime = myConfig.refreshTime;
+            if (rss != null)
+            {
+                ViewBag.RssFeed = rss;
+            }
 
             var config = XDocument.Load("config.xml");
             var links = config.Root.Element("RSS").Element("links");
             var countLinks = links.Elements().Count();
-            
+
             for (int i = 0; i < countLinks; i++)
             {
                 using (var client = new HttpClient())
@@ -36,26 +40,42 @@ namespace TaskTwo.Controllers
                     client.BaseAddress = new Uri(link);
                     var responseMessage = await client.GetAsync(link);
                     var responseString = await responseMessage.Content.ReadAsStringAsync();
-                    //<+(\w+\W+)+>+
+
                     XDocument doc = XDocument.Parse(responseString);
-                    
+
                     Regex regex = new Regex(@"(<[\a-zA-Z]+>)+(&[a-z]+;)*(Читать дальше? &rarr;?)?(Читать далее?)?", RegexOptions.Compiled);
                     Regex regexSpace = new Regex(@"(&nbsp;)+", RegexOptions.Compiled);
                     Regex regexTags = new Regex(@"<+(\w+\W+)+>+", RegexOptions.Compiled);
 
-                    var chTitle = doc.Descendants("title").First().Value;
-                    var feedItems = from item in doc.Root.Descendants().First(a => a.Name.LocalName == "channel").Elements().Where(a => a.Name.LocalName == "item")
-                                    select new FeedItem
-                                    {
-                                        Description = regexSpace.Replace(regexTags.Replace(regex.Replace(item.Elements().First(a => a.Name.LocalName == "description").Value, ""), ""), " "),
-                                        Link = item.Elements().First(a => a.Name.LocalName == "link").Value,
-                                        pubDate = ParseDate(item.Elements().First(a => a.Name.LocalName == "pubDate").Value),
-                                        Title = item.Elements().First(a => a.Name.LocalName == "title").Value,
-                                        ChannelTitle = chTitle
-                                    };
-                    feed.AddRange(feedItems.ToList());
+                    if (rss != null && doc.Root.Descendants("title").First().Value == rss)
+                    {
+                        var feedItem = from item in doc.Root.Descendants().First(a => a.Name.LocalName == "channel").Elements().Where(a => a.Name.LocalName == "item")
+                                       select new FeedItem
+                                       {
+                                           Description = regexSpace.Replace(regexTags.Replace(regex.Replace(item.Elements().First(a => a.Name.LocalName == "description").Value, ""), ""), " "),
+                                           Link = item.Elements().First(a => a.Name.LocalName == "link").Value,
+                                           pubDate = ParseDate(item.Elements().First(a => a.Name.LocalName == "pubDate").Value),
+                                           Title = item.Elements().First(a => a.Name.LocalName == "title").Value,
+                                       };
+                        feed.AddRange(feedItem.ToList());
+                        break;
+                    }
+                    else if (rss == null)
+                    {
+                        var feedItems = from item in doc.Root.Descendants().First(a => a.Name.LocalName == "channel").Elements().Where(a => a.Name.LocalName == "item")
+                                        select new FeedItem
+                                        {
+                                            Description = regexSpace.Replace(regexTags.Replace(regex.Replace(item.Elements().First(a => a.Name.LocalName == "description").Value, ""), ""), " "),
+                                            Link = item.Elements().First(a => a.Name.LocalName == "link").Value,
+                                            pubDate = ParseDate(item.Elements().First(a => a.Name.LocalName == "pubDate").Value),
+                                            Title = item.Elements().First(a => a.Name.LocalName == "title").Value,
+                                        };
+                        feed.AddRange(feedItems.ToList());
+                    }
+
+
                 }
-            }     
+            }
 
             return View(feed);
 
@@ -77,6 +97,48 @@ namespace TaskTwo.Controllers
             var newLink = config.Descendants("links").First();
             newLink.Add(new XElement($"link{count}", link));
             config.Save("config.xml");
+            return RedirectToAction("Index");
+        }
+
+        public async Task<IActionResult> DeleteLink(string rssTitle)
+        {
+            XDocument config = XDocument.Load("config.xml");
+
+            var links = config.Root.Element("RSS").Element("links");
+            var countLinks = links.Elements().Count();
+
+            for (int i = 0; i < countLinks; i++)
+            {
+                using (var client = new HttpClient())
+                {
+
+                    var link = links.Element($"link{i}").Value;
+                    client.BaseAddress = new Uri(link);
+                    var responseMessage = await client.GetAsync(link);
+                    var responseString = await responseMessage.Content.ReadAsStringAsync();
+
+                    XDocument doc = XDocument.Parse(responseString);
+
+                    if (doc.Root.Descendants("title").First().Value == rssTitle)
+                    {
+                        var deletedEl = config.Root.Element("RSS").Element("links").Element($"link{i}");
+                        deletedEl.Remove();
+
+                        var newLinks = links.Elements();
+                        int j = 0;
+                        foreach (var item in newLinks)
+                        {
+                            item.Name = $"link{j}";
+                            j++;
+                        }
+
+                        config.Save("config.xml");
+                        break;
+                    }
+
+
+                }
+            }
             return RedirectToAction("Index");
         }
 
